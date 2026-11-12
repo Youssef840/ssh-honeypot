@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}مراقبة الـ Honeypot{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-refresh="{{ refresh_seconds }}">
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-dot" aria-hidden="true"></span>
+        SSH Honeypot
+      </a>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">نظرة عامة</a>
+        <a href="{{ url_for('sessions') }}" class="{{ 'active' if request.endpoint == 'sessions' }}">الجلسات</a>
+        <a href="{{ url_for('export_auth') }}">تصدير CSV</a>
+      </nav>
+      <label class="refresh-toggle">
+        <input type="checkbox" id="auto-refresh"> تحديث تلقائي
+      </label>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="wrap footer">
+    كل البيانات المعروضة مُدخلة من المهاجمين — تُعرض كنص فقط ولا تُنفّذ. · v{{ version }} · التوقيت UTC
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+</body>
+</html>

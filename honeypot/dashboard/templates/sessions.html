@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}الجلسات — Honeypot{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h2>كل الجلسات <span class="muted">({{ "{:,}".format(total) }})</span></h2>
+    <form class="filters" method="get" action="{{ url_for('sessions') }}">
+      <input type="text" name="ip" value="{{ ip }}" placeholder="فلترة حسب IP" dir="ltr">
+      <label><input type="checkbox" name="logged_in" value="1" {{ 'checked' if logged_in }}> الناجحة فقط</label>
+      <button type="submit">تطبيق</button>
+    </form>
+  </div>
+  {% set sessions = rows %}
+  {% include "_sessions_table.html" %}
+  {% if pages > 1 %}
+  <nav class="pager">
+    {% if page > 1 %}<a href="{{ url_for('sessions', page=page-1, ip=ip or None, logged_in='1' if logged_in else None) }}">→ السابق</a>{% endif %}
+    <span>صفحة {{ page }} من {{ pages }}</span>
+    {% if page < pages %}<a href="{{ url_for('sessions', page=page+1, ip=ip or None, logged_in='1' if logged_in else None) }}">التالي ←</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% endblock %}

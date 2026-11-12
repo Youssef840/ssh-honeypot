@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ d.ip }} — Honeypot{% endblock %}
+{% block content %}
+{% set st = d.stats %}
+<section class="card">
+  <div class="card-head"><h2>ملف المهاجم <code dir="ltr">{{ d.ip }}</code>
+    {% set lvl = st|level %}<span class="badge {{ lvl }}">{{ lvl }}</span></h2></div>
+  <dl class="facts">
+    <div><dt>نقاط الخطورة</dt><dd class="strong">{{ st.score }}</dd></div>
+    <div><dt>الجلسات</dt><dd>{{ st.sessions }}</dd></div>
+    <div><dt>محاولات الدخول</dt><dd>{{ st.attempts }}</dd></div>
+    <div><dt>دخول ناجح</dt><dd>{{ st.successes }}</dd></div>
+    <div><dt>أوامر</dt><dd>{{ st.commands }}</dd></div>
+    <div><dt>أول ظهور</dt><dd class="mono">{{ st.first_seen }}</dd></div>
+    <div><dt>آخر ظهور</dt><dd class="mono">{{ st.last_seen }}</dd></div>
+  </dl>
+  <p class="hint">تحقق من سمعة العنوان يدوياً عبر AbuseIPDB أو Shodan أو GreyNoise.</p>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>بيانات الاعتماد المُجرّبة</h2></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>المستخدم</th><th>كلمة المرور</th><th>الطريقة</th><th>مرات</th><th>نجحت؟</th></tr></thead>
+      <tbody>{% for c in d.credentials %}
+        <tr><td><code dir="ltr">{{ c.username }}</code></td><td><code dir="ltr">{{ c.password or '—' }}</code></td>
+            <td>{{ c.method }}</td><td class="num">{{ c.count }}</td><td>{{ '✔' if c.worked else '—' }}</td></tr>
+      {% else %}<tr><td colspan="5" class="empty">لا بيانات.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>مؤشرات الاختراق</h2></div>
+    {% if d.iocs %}<ul class="ioc-list">{% for i in d.iocs %}<li><span class="badge neutral">{{ i.ioc_type }}</span> <code dir="ltr">{{ i.value }}</code></li>{% endfor %}</ul>
+    {% else %}<p class="empty">لا شيء.</p>{% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>آخر الأوامر</h2></div>
+  {% if d.commands %}
+  <div class="terminal" dir="ltr">
+    {% for c in d.commands %}
+      <div class="term-line {{ 'risky' if c.risk >= 7 }}">
+        <span class="term-ts">{{ c.ts }}</span><span class="term-prompt">$</span>
+        <span class="term-cmd">{{ c.command }}</span>
+        {% if c.tags %}<span class="term-tags">{% for t in c.tags.split(',') %}<span class="tag">{{ t }}</span>{% endfor %}</span>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}<p class="empty">لم يصل هذا العنوان إلى الطرفية.</p>{% endif %}
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>الجلسات</h2></div>
+  {% set sessions = d.sessions %}
+  {% include "_sessions_table.html" %}
+</section>
+{% endblock %}

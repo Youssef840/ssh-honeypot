@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}جلسة {{ d.session.id }} — Honeypot{% endblock %}
+{% block content %}
+{% set s = d.session %}
+<section class="card">
+  <div class="card-head"><h2>جلسة <code dir="ltr">{{ s.id }}</code></h2>
+    <a class="more" href="{{ url_for('ip_view', ip=s.src_ip) }}">كل نشاط {{ s.src_ip }} ←</a></div>
+  <dl class="facts">
+    <div><dt>IP المصدر</dt><dd><code dir="ltr">{{ s.src_ip }}:{{ s.src_port }}</code></dd></div>
+    <div><dt>العميل</dt><dd><code dir="ltr">{{ s.client_version or '—' }}</code></dd></div>
+    <div><dt>البداية (UTC)</dt><dd class="mono">{{ s.started_at }}</dd></div>
+    <div><dt>النهاية</dt><dd class="mono">{{ s.ended_at or 'ما زالت نشطة' }}</dd></div>
+    <div><dt>المدة</dt><dd>{{ s.duration|dur }}</dd></div>
+    <div><dt>الدخول</dt><dd>{% if s.login_success %}<span class="badge high">نجح</span> <code dir="ltr">{{ s.username }}:{{ s.password }}</code>{% else %}<span class="badge low">فشل</span>{% endif %}</dd></div>
+    <div><dt>الطرفية</dt><dd><code dir="ltr">{{ s.term or '—' }}</code></dd></div>
+    <div><dt>سبب الإنهاء</dt><dd class="mono">{{ s.end_reason or '—' }}</dd></div>
+  </dl>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>محاولات المصادقة ({{ d.auth|length }})</h2></div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>الوقت</th><th>الطريقة</th><th>المستخدم</th><th>كلمة المرور / البصمة</th><th>النتيجة</th></tr></thead>
+    <tbody>
+    {% for a in d.auth %}
+      <tr><td class="mono">{{ a.ts }}</td><td>{{ a.method }}</td><td><code dir="ltr">{{ a.username }}</code></td>
+        <td><code dir="ltr">{{ a.password if a.method == 'password' else (a.key_type ~ ' ' ~ a.key_fingerprint) }}</code></td>
+        <td>{% if a.success %}<span class="badge high">قُبلت</span>{% else %}<span class="badge low">رُفضت</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="5" class="empty">لا محاولات.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>سجل الطرفية ({{ d.commands|length }} أمر)</h2></div>
+  {% if d.commands %}
+  <div class="terminal" dir="ltr">
+    {% for c in d.commands %}
+      <div class="term-line {{ 'risky' if c.risk >= 7 }}">
+        <span class="term-ts">{{ c.ts[11:] }}</span>
+        <span class="term-prompt">{{ '$' if c.kind == 'shell' else 'exec>' }}</span>
+        <span class="term-cmd">{{ c.command }}</span>
+        {% if c.tags %}<span class="term-tags">{% for t in c.tags.split(',') %}<span class="tag">{{ t }}</span>{% endfor %}</span>{% endif %}
+        {% if not c.known %}<span class="tag muted">غير مدعوم</span>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}<p class="empty">لم يُدخل المهاجم أي أوامر.</p>{% endif %}
+</section>
+
+{% if d.iocs %}
+<section class="card">
+  <div class="card-head"><h2>مؤشرات الاختراق في هذه الجلسة</h2></div>
+  <ul class="ioc-list">{% for i in d.iocs %}<li><span class="badge neutral">{{ i.ioc_type }}</span> <code dir="ltr">{{ i.value }}</code></li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

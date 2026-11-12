@@ -1,0 +1,44 @@
+# Usage:  cp .env.example .env   (set DASH_PASSWORD!)   then   docker compose up -d --build
+services:
+  honeypot:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "22:2222"            # public port 22 -> unprivileged 2222 in the container
+    volumes:
+      - hpdata:/app/data
+    env_file: [.env]
+    environment:
+      HP_BIND_HOST: 0.0.0.0
+    read_only: true          # immutable container filesystem...
+    tmpfs: [/tmp]
+    cap_drop: [ALL]          # ...with no Linux capabilities
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    pids_limit: 256
+
+  dashboard:
+    build: .
+    restart: unless-stopped
+    command: ["python", "-m", "honeypot.dashboard"]
+    ports:
+      - "127.0.0.1:5000:5000" # host loopback only -> reach it through an SSH tunnel
+    volumes:
+      - hpdata:/app/data
+    env_file: [.env]
+    environment:
+      DASH_HOST: 0.0.0.0     # inside the container; still only published on host loopback
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on: [honeypot]
+
+volumes:
+  hpdata:

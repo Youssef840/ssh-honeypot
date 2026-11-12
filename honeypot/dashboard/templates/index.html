@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="kpis">
+  <div class="kpi"><span class="kpi-label">محاولات الدخول</span><span class="kpi-value">{{ "{:,}".format(s.auth_attempts) }}</span><span class="kpi-sub">{{ "{:,}".format(s.attempts_24h) }} خلال 24 ساعة</span></div>
+  <div class="kpi"><span class="kpi-label">محاولات فاشلة</span><span class="kpi-value">{{ "{:,}".format(s.failed_logins) }}</span></div>
+  <div class="kpi accent"><span class="kpi-label">دخول ناجح (للفخ)</span><span class="kpi-value">{{ "{:,}".format(s.successful_logins) }}</span></div>
+  <div class="kpi"><span class="kpi-label">عناوين IP فريدة</span><span class="kpi-value">{{ "{:,}".format(s.unique_ips) }}</span><span class="kpi-sub">{{ s.ips_24h }} خلال 24 ساعة</span></div>
+  <div class="kpi"><span class="kpi-label">الجلسات</span><span class="kpi-value">{{ "{:,}".format(s.sessions) }}</span><span class="kpi-sub">متوسط {{ s.avg_session|dur }}</span></div>
+  <div class="kpi"><span class="kpi-label">أوامر مُدخلة</span><span class="kpi-value">{{ "{:,}".format(s.commands) }}</span></div>
+  <div class="kpi danger"><span class="kpi-label">روابط خبيثة (IOC)</span><span class="kpi-value">{{ "{:,}".format(s.iocs) }}</span></div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>محاولات الدخول عبر الزمن</h2>
+    <div class="seg" role="group" aria-label="الفترة">
+      <button type="button" data-hours="24" class="active">24 ساعة</button>
+      <button type="button" data-hours="168">7 أيام</button>
+      <button type="button" data-hours="720">30 يوم</button>
+    </div>
+  </div>
+  <div class="chart-box tall"><canvas id="timelineChart" aria-label="مخطط المحاولات عبر الزمن"></canvas></div>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>أخطر عناوين IP</h2><a class="more" href="{{ url_for('sessions') }}">كل الجلسات ←</a></div>
+    {% if top_ips %}
+    <div class="table-scroll"><table>
+      <thead><tr><th>IP</th><th>الخطورة</th><th>محاولات</th><th>نجاح</th><th>أوامر</th><th>النقاط</th></tr></thead>
+      <tbody>
+      {% for r in top_ips %}
+        <tr>
+          <td><a href="{{ url_for('ip_view', ip=r.src_ip) }}"><code dir="ltr">{{ r.src_ip }}</code></a></td>
+          <td>{% set lvl = r|level %}<span class="badge {{ lvl }}">{{ lvl }}</span></td>
+          <td class="num">{{ r.attempts }}</td>
+          <td class="num">{{ r.successes }}</td>
+          <td class="num">{{ r.commands }}</td>
+          <td class="num strong">{{ r.score }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}<p class="empty">لا توجد هجمات مسجلة بعد.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>تصنيف سلوك المهاجمين</h2></div>
+    {% if chart_data.tags %}
+      <div class="chart-box"><canvas id="tagsChart" aria-label="تصنيف الأوامر"></canvas></div>
+    {% else %}<p class="empty">لم يُنفّذ أي أمر مصنّف بعد.</p>{% endif %}
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>أكثر كلمات المرور تجربةً</h2></div>
+    {% if passwords %}<div class="chart-box"><canvas id="passwordsChart"></canvas></div>
+    {% else %}<p class="empty">لا بيانات.</p>{% endif %}
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>أكثر أسماء المستخدمين تجربةً</h2></div>
+    {% if usernames %}<div class="chart-box"><canvas id="usernamesChart"></canvas></div>
+    {% else %}<p class="empty">لا بيانات.</p>{% endif %}
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>أشهر تركيبات (مستخدم : كلمة مرور)</h2></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>المستخدم</th><th>كلمة المرور</th><th>المرات</th><th>نجحت؟</th></tr></thead>
+      <tbody>
+      {% for r in combos %}
+        <tr><td><code dir="ltr">{{ r.username }}</code></td><td><code dir="ltr">{{ r.password }}</code></td>
+            <td class="num">{{ r.count }}</td><td>{{ '✔' if r.worked else '—' }}</td></tr>
+      {% else %}<tr><td colspan="4" class="empty">لا بيانات.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>أكثر الأوامر تنفيذاً</h2></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>الأمر</th><th>المرات</th><th>الخطورة</th></tr></thead>
+      <tbody>
+      {% for r in commands %}
+        <tr><td class="cmd"><code dir="ltr">{{ r.command }}</code></td><td class="num">{{ r.count }}</td>
+            <td class="num {{ 'risk-hi' if r.risk >= 7 }}">{{ r.risk }}</td></tr>
+      {% else %}<tr><td colspan="3" class="empty">لا بيانات.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>مؤشرات الاختراق (IOCs) — روابط وعناوين أرسلها المهاجمون</h2></div>
+  <p class="hint">لا يقوم الـ Honeypot بتحميل أي رابط. افحصها فقط عبر خدمات مثل VirusTotal أو URLhaus من جهاز معزول.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>النوع</th><th>القيمة</th><th>مرات</th><th>عدد IP</th><th>آخر ظهور (UTC)</th></tr></thead>
+    <tbody>
+    {% for r in iocs %}
+      <tr><td><span class="badge neutral">{{ r.ioc_type }}</span></td><td class="cmd"><code dir="ltr">{{ r.value|truncate(300) }}</code></td>
+          <td class="num">{{ r.hits }}</td><td class="num">{{ r.ips }}</td><td class="mono">{{ r.last_seen }}</td></tr>
+    {% else %}<tr><td colspan="5" class="empty">لا توجد مؤشرات بعد.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>آخر الجلسات</h2><a class="more" href="{{ url_for('sessions') }}">الكل ←</a></div>
+  {% include "_sessions_table.html" %}
+</section>
+
+<script id="chart-data" type="application/json">{{ chart_data|tojson }}</script>
+{% endblock %}

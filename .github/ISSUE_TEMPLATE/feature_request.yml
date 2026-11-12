@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a new emulated command, detection rule or dashboard feature
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: For new commands, paste the real Linux output you want emulated.
+  - type: textarea
+    id: samples
+    attributes:
+      label: Attacker samples (optional)
+      description: Real command lines seen in the wild that motivated this.
+      render: shell

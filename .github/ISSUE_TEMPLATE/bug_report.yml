@@ -1,0 +1,45 @@
+name: Bug report
+description: Something is not working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Security issue?** Do not file it here — use *Security → Report a vulnerability* instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. HP_AUTH_MODE=list python -m honeypot
+        2. ssh -p 2222 root@127.0.0.1
+        3. run `...`
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant lines from data/honeypot.log (remove real attacker IPs if you prefer).
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "output of: python -m honeypot --version"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Linux, Windows, macOS, Docker]
+    validations:
+      required: true

@@ -1,0 +1,21 @@
+<div class="table-scroll"><table>
+  <thead><tr><th>البداية (UTC)</th><th>IP</th><th>العميل</th><th>محاولات</th><th>دخل؟</th><th>الحساب</th><th>أوامر</th><th>المدة</th><th>سبب الإنهاء</th><th></th></tr></thead>
+  <tbody>
+  {% for r in sessions %}
+    <tr>
+      <td class="mono">{{ r.started_at }}</td>
+      <td><a href="{{ url_for('ip_view', ip=r.src_ip) }}"><code dir="ltr">{{ r.src_ip }}</code></a></td>
+      <td class="clip"><code dir="ltr">{{ (r.client_version or '—')[:40] }}</code></td>
+      <td class="num">{{ r.attempts }}</td>
+      <td>{% if r.login_success %}<span class="badge high">نعم</span>{% else %}<span class="badge low">لا</span>{% endif %}</td>
+      <td>{% if r.username %}<code dir="ltr">{{ r.username }}:{{ r.password }}</code>{% else %}—{% endif %}</td>
+      <td class="num {{ 'risk-hi' if r.risk >= 10 }}">{{ r.commands }}</td>
+      <td class="num">{{ r.duration|dur }}</td>
+      <td class="mono small">{{ r.end_reason or 'active' }}</td>
+      <td><a href="{{ url_for('session', sid=r.id) }}">تفاصيل</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="10" class="empty">لا توجد جلسات.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
