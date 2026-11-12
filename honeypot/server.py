@@ -256,7 +256,25 @@ def _run_exec(chan: paramiko.Channel, ctx: SessionContext, shell: FakeShell, com
     output, known = _record_command(ctx, shell, command, "exec")
     _send(chan, output, crlf=False)
     chan.send_exit_status(0 if known else 127)
+    _linger_for_client(chan)
     return "exec_done"
+
+
+def _linger_for_client(chan: paramiko.Channel, timeout: float = 2.0) -> None:
+    """Give the client a moment to read output + exit status before we tear down.
+
+    Closing the transport immediately after ``send_exit_status`` races with the
+    client's reader thread: it can see the socket drop before it has processed
+    the exit-status packet (``recv_exit_status()`` then returns -1). Real sshd
+    waits for the client to disconnect, so we do the same, with a short cap.
+    """
+    chan.shutdown_write()  # send EOF, like sshd does after the command ends
+    transport = chan.get_transport()
+    deadline = time.monotonic() + timeout
+    while transport is not None and transport.is_active() and time.monotonic() < deadline:
+        if chan.closed or chan.eof_received:
+            break
+        time.sleep(0.02)
 
 
 def _run_shell(chan: paramiko.Channel, ctx: SessionContext, shell: FakeShell, interactive: bool) -> str:
