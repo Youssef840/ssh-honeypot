@@ -1,6 +1,6 @@
 # Pinned runtime dependencies (reproducible installs / Docker).
 # These exact versions pass the full test suite. Version ranges for library use live in pyproject.toml.
-paramiko==3.5.1
+paramiko==5.1.0
 cryptography==50.0.2
 Flask==3.1.3
 waitress==3.0.2
