@@ -179,7 +179,7 @@ as described in [SECURITY.md](SECURITY.md).
 
 ## 📄 License
 
-[MIT](LICENSE) © 2026 YOUR NAME
+[MIT](LICENSE) © 2026 Youssef Hussein
 
 <sub>Inspired by the excellent <a href="https://github.com/cowrie/cowrie">Cowrie</a> project — this is a compact,
 readable implementation meant for learning and small deployments.</sub>
