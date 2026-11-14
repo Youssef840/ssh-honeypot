@@ -63,6 +63,10 @@ td code { white-space: nowrap; }
 .nav a { color: var(--muted); padding: 6px 12px; border-radius: 8px; }
 .nav a.active, .nav a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
 .refresh-toggle { color: var(--muted); font-size: 13px; display: flex; gap: 6px; align-items: center; }
+.demo-banner { background: var(--warn-soft); color: var(--warn); border-bottom: 1px solid var(--border); font-size: 14px; }
+.demo-banner .wrap { padding-top: 10px; padding-bottom: 10px; line-height: 1.7; }
+.demo-banner strong { color: var(--text); }
+.demo-banner-en { text-align: right; font-size: 13px; opacity: 0.85; }
 
 main.wrap { padding-top: 20px; padding-bottom: 20px; display: flex; flex-direction: column; gap: 16px; }
 

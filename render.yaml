@@ -1,0 +1,11 @@
+# Public DEMO of the dashboard on Render (free plan).
+# It does NOT run a honeypot: no SSH port is opened. At startup the dashboard is
+# filled with simulated attack data and every page shows a "Demo only" banner.
+services:
+  - type: web
+    name: ssh-honeypot-demo
+    runtime: docker
+    plan: free
+    dockerCommand: python -m honeypot.dashboard.demo_web
+    healthCheckPath: /healthz
+    autoDeploy: true

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}مراقبة الـ Honeypot{% endblock %}</title>
+  <title>{% if demo_mode %}[Demo] {% endif %}{% block title %}مراقبة الـ Honeypot{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -26,6 +26,15 @@
       </label>
     </div>
   </header>
+
+  {% if demo_mode %}
+  <div class="demo-banner" role="note">
+    <div class="wrap">
+      <div><strong>⚠️ عرض توضيحي فقط</strong> — كل الهجمات المعروضة بيانات مُحاكاة وليست هجمات حقيقية.</div>
+      <div dir="ltr" class="demo-banner-en"><strong>Demo only</strong> — all attacks shown are simulated sample data, not real traffic.</div>
+    </div>
+  </div>
+  {% endif %}
 
   <main class="wrap">
     {% block content %}{% endblock %}

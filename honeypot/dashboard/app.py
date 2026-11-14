@@ -33,10 +33,12 @@ from . import queries as q
 PAGE_SIZE = 25
 
 
-def create_app(settings: DashboardSettings | None = None) -> Flask:
+def create_app(settings: DashboardSettings | None = None, demo: bool = False) -> Flask:
+    """Build the dashboard. ``demo=True`` shows a banner saying the data is simulated."""
     settings = settings or DashboardSettings()
     app = Flask(__name__)
     app.config["HP_SETTINGS"] = settings
+    app.config["DEMO_MODE"] = demo
     app.config["JSON_SORT_KEYS"] = False
 
     if not settings.db_path.exists():  # first run: create an empty schema
@@ -106,7 +108,7 @@ def create_app(settings: DashboardSettings | None = None) -> Flask:
 
     @app.context_processor
     def _inject():
-        return {"refresh_seconds": settings.refresh_seconds, "version": __version__}
+        return {"refresh_seconds": settings.refresh_seconds, "version": __version__, "demo_mode": demo}
 
     def _valid_ip(value: str) -> str:
         try:
