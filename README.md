@@ -15,6 +15,10 @@ and turn it into actionable threat intelligence — without ever running a singl
 
 [Features](#-features) · [Quick start](#-quick-start) · [Architecture](docs/ARCHITECTURE.md) · [Deployment](docs/DEPLOYMENT.md) · [العربية](README.ar.md)
 
+### 🌐 [Live demo dashboard → ssh-honeypot-demo.onrender.com](https://ssh-honeypot-demo.onrender.com)
+<sub>⚠️ <b>Demo only:</b> the dashboard shows <b>simulated</b> attack data (documentation IP ranges, RFC 5737), not real traffic.
+No honeypot runs there and no SSH port is open. Free hosting: the first visit can take about a minute to wake up.</sub>
+
 <img src="docs/images/dashboard.png" alt="Dashboard overview" width="900">
 
 </div>
