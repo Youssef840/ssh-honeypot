@@ -29,7 +29,7 @@ classifiers = [
     "Topic :: System :: Networking :: Monitoring",
 ]
 dependencies = [
-    "paramiko>=3.4,<4",
+    "paramiko>=3.4,<6",
     "Flask>=3.0,<4",
     "waitress>=3.0,<4",
 ]
